@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional WhatsApp Link Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f9;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+      flex-direction: column;
+    }
+
+    .dark-mode {
+      background-color: #181818;
+      color: #f4f4f9;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    .dark-mode .container {
+      background: #242424;
+    }
+
+    h1 {
+      color: #25D366;
+    }
+
+    .dark-mode h1 {
+      color: #1f9d4b;
+    }
+
+    input, textarea, button, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .dark-mode input, .dark-mode textarea, .dark-mode button, .dark-mode select {
+      background: #333;
+      color: #f4f4f9;
+      border: 1px solid #555;
+    }
+
+    button {
+      background-color: #25D366;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #20b358;
+    }
+
+    .output {
+      margin-top: 20px;
+      word-wrap: break-word;
+      text-align: center;
+    }
+
+    .output a {
+      color: #25D366;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .output a:hover {
+      text-decoration: underline;
+    }
+
+    .qr-code canvas {
+      margin-top: 10px;
+      max-width: 100%;
+    }
+
+    .dark-mode .qr-code canvas {
+      border: 1px solid #555;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .dark-mode footer {
+      color: #aaa;
+    }
+
+    .mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 4px;
+      background: #25D366;
+      color: white;
+      font-weight: bold;
+    }
+
+    .dark-mode .mode-toggle {
+      background: #1f9d4b;
+    }
+  </style>
+</head>
+<body>
+
+<div class="mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+
+<div class="container">
+  <h1>WhatsApp Link Generator</h1>
+  <input type="text" id="phone" placeholder="Enter phone number (e.g., 923001234567)">
+  <textarea id="message" placeholder="Enter an optional message"></textarea>
+  <select id="language" onchange="updatePlaceholders()">
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+  </select>
+  <button onclick="generateLink()">Generate Link</button>
+  <div class="output" id="output"></div>
+  <div class="qr-code" id="qr-code"></div>
+</div>
+
+<footer>
+  This tool is created by Sajjad 
+</footer>
+
+<script>
+  let isDarkMode = false;
+
+  function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+  }
+
+  function updatePlaceholders() {
+    const language = document.getElementById('language').value;
+    const phoneInput = document.getElementById('phone');
+    const messageInput = document.getElementById('message');
+
+    if (language === 'en') {
+      phoneInput.placeholder = "Enter phone number (e.g., 923001234567)";
+      messageInput.placeholder = "Enter an optional message";
+    } else if (language === 'es') {
+      phoneInput.placeholder = "Ingrese el número de teléfono (e.g., 923001234567)";
+      messageInput.placeholder = "Ingrese un mensaje opcional";
+    } else if (language === 'fr') {
+      phoneInput.placeholder = "Entrez le numéro de téléphone (e.g., 923001234567)";
+      messageInput.placeholder = "Entrez un message facultatif";
+    }
+  }
+
+  function generateLink() {
+    const phone = document.getElementById('phone').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const output = document.getElementById('output');
+    const qrCodeContainer = document.getElementById('qr-code');
+
+    if (!phone || !/^\d+$/.test(phone)) {
+      output.innerHTML = '<p style="color: red;">Please enter a valid phone number.</p>';
+      qrCodeContainer.innerHTML = '';
+      return;
+    }
+
+    const baseURL = `https://wa.me/${phone}`;
+    const link = message ? `${baseURL}?text=${encodeURIComponent(message)}` : baseURL;
+
+    output.innerHTML = `
+      <p>Your WhatsApp link:</p>
+      <a href="${link}" target="_blank">${link}</a>
+      <button onclick="copyToClipboard('${link}')">Copy to Clipboard</button>
+    `;
+
+    // Generate QR Code
+    const qr = new QRious({
+      element: document.createElement('canvas'),
+      value: link,
+      size: 200
+    });
+    qrCodeContainer.innerHTML = `
+      <p>Scan this QR Code:</p>
+      <canvas>${qr.canvas.outerHTML}</canvas>
+      <button onclick="downloadQRCode()">Download QR Code</button>
+    `;
+    qrCodeContainer.appendChild(qr.canvas);
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Link copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy the link. Try again.');
+    });
+  }
+
+  function downloadQRCode() {
+    const qrCanvas = document.querySelector('.qr-code canvas');
+    const link = document.createElement('a');
+    link.href = qrCanvas.toDataURL();
+    link.download = 'whatsapp_qr_code.png';
+    link.click();
+  }
+</script>
+
+</body>
+</html>

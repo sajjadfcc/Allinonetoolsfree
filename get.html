@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Unban Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .captcha {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .captcha input {
+            margin-right: 10px;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            padding: 20px;
+            width: 80%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .modal button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>WhatsApp Unban Request</h1>
+    <form id="unbanForm">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" placeholder="Enter your full name" required>
+
+        <label for="email">Your Email:</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+
+        <label for="phoneNumber">Phone Number (with +9230000000):</label>
+        <input type="text" id="phoneNumber" placeholder="+9230000000" required>
+
+        <label for="reason">Reason for Unban Request:</label>
+        <select id="reason" required>
+            <option value="" disabled selected>Select a reason</option>
+            <option value="mistake">Account banned by mistake</option>
+            <option value="policy">I followed the Terms of Service</option>
+            <option value="other">Other</option>
+        </select>
+
+        <div class="captcha">
+            <input type="checkbox" id="captcha" required>
+            <label for="captcha">I'm not a robot</label>
+        </div>
+
+        <button type="button" id="sendEmail">Send Unban Request</button>
+        <button type="button" id="copyRequest">Copy Request Details</button>
+        <div id="message" class="message"></div>
+    </form>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="confirmationModal">
+    <h2>Confirm Submission</h2>
+    <p>Are you sure you want to send this request?</p>
+    <button id="confirmSend">Yes, Send</button>
+    <button id="cancelSend">Cancel</button>
+</div>
+
+<script>
+    const sendEmailButton = document.getElementById("sendEmail");
+    const copyRequestButton = document.getElementById("copyRequest");
+    const messageElement = document.getElementById("message");
+    const overlay = document.getElementById("overlay");
+    const modal = document.getElementById("confirmationModal");
+    const confirmSend = document.getElementById("confirmSend");
+    const cancelSend = document.getElementById("cancelSend");
+
+    sendEmailButton.addEventListener("click", () => {
+        overlay.classList.add("active");
+        modal.classList.add("active");
+    });
+
+    cancelSend.addEventListener("click", () => {
+        overlay.classList.remove("active");
+        modal.classList.remove("active");
+    });
+
+    confirmSend.addEventListener("click", () => {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        const reason = document.getElementById("reason").value;
+
+        if (!name || !email || !phoneNumber || !reason) {
+            messageElement.textContent = "Please fill out all fields!";
+            messageElement.className = "message error";
+            messageElement.style.display = "block";
+            overlay.classList.remove("active");
+            modal.classList.remove("active");
+            return;
+        }
+
+        const supportEmail = "support@whatsapp.com";
+        const subject = "Request to Unban My WhatsApp Account";
+        const body = `
+Dear WhatsApp Support Team,
+	  
+I hope this message finds you well. I am writing to respectfully request the restoration of my WhatsApp account associated with the phone number .
+
+WhatsApp is an invaluable platform for my daily communication, and I kindly seek your assistance in resolving this matter at the earliest convenience.
+
+Thank you for your understanding and prompt attention to this request. Please let me know if any further information or clarification is required.
+		
+Reason: ${reason}.
+Details:
+Name: ${name}
+Email: ${email}
+Phone Number: ${phoneNumber}
+
+Thank you for your assistance.
+
+Best regards,
+${name}
+        `;
+
+        const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(supportEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(gmailLink, "_blank");
+
+        messageElement.textContent = "Request sent successfully!";
+        messageElement.className = "message success";
+        messageElement.style.display = "block";
+
+        overlay.classList.remove("active");
+        modal.classList.remove("active");
+    });
+
+    copyRequestButton.addEventListener("click", () => {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        const reason = document.getElementById("reason").value;
+
+        const details = `
+Name: ${name}
+Email: ${email}
+Phone Number: ${phoneNumber}
+Reason: ${reason}
+        `;
+        navigator.clipboard.writeText(details);
+
+        messageElement.textContent = "Request details copied to clipboard!";
+        messageElement.className = "message success";
+        messageElement.style.display = "block";
+    });
+</script>
+</body>
+</html>

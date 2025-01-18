@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Login Page with WhatsApp contact feature.">
+    <meta name="author" content="Sajjad Tools">
+    <title>Login - Sajjad Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-container h2 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+            color: #007bff;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .login-container input[type="password"] {
+            padding-right: 40px;
+        }
+
+        .login-container input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .login-container .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .login-container .forgot-password {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .login-container .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-container .show-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            color: #007bff;
+            font-size: 1.5rem;
+        }
+
+        .demo-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-btn:hover {
+            background-color: #e60073;
+        }
+
+        .whatsapp-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #25d366;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #128c7e;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 25px;
+            }
+
+            .login-container h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Login to Sajjad Tools</h2>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="return validateLogin(event)">
+            <input type="text" id="username" placeholder="Username" required aria-label="Username">
+            <div style="position: relative;">
+                <input type="password" id="password" placeholder="Password" required aria-label="Password">
+                <i class="fa fa-eye show-password" onclick="togglePasswordVisibility()"></i>
+            </div>
+            <button type="submit">Login</button>
+
+            <!-- Loading state -->
+            <div class="loading" id="loadingSpinner">
+                <i class="fa fa-spinner fa-spin"></i> Logging in...
+            </div>
+
+            <p class="error-message" id="error-message"></p>
+
+            <p class="forgot-password" onclick="forgotPassword()">Forgot Password?</p>
+        </form>
+
+        <!-- Demo Button -->
+        <button class="demo-btn" onclick="openDemoImage()">Open Demo Image</button>
+
+        <!-- WhatsApp Contact Button -->
+        <a href="https://wa.me/03446288955?text=Do%20you%20want%20to%20buy%20this%20Side" target="_blank">
+            <button class="whatsapp-btn">Contact Us on WhatsApp</button>
+        </a>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.querySelector('.show-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Handle login validation
+        function validateLogin(event) {
+            event.preventDefault(); // Prevent form submission
+
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            const validUsername = 'sajjad2211';
+            const validPassword = 'sajjad1122';
+
+            setTimeout(() => {
+                if (username === validUsername && password === validPassword) {
+                    errorMessage.textContent = '';
+                    alert('Login successful! Redirecting to Allinonetool...');
+                    window.location.href = 'main.html';
+                } else {
+                    errorMessage.textContent = 'Invalid username or password. Please try again.';
+                }
+
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }, 2000);
+        }
+
+        function forgotPassword() {
+            alert('Forgot password functionality coming soon!');
+        }
+
+        function openDemoImage() {
+            const demoImageUrl = 'https://via.placeholder.com/1500';
+            const newTab = window.open(demoImageUrl, '', 'width=1000%, height=1000%, fullscreen=yes');
+            newTab.document.body.innerHTML = `<img src="${demoImageUrl}" alt="Demo Image" style="width: 100%; height: 100%; object-fit: contain;">`;
+        }
+    </script>
+
+</body>
+
+</html>

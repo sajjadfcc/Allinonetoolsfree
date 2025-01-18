@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gmail Dot Maker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    header, footer {
+      background-color: #007BFF;
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    header nav {
+      flex-grow: 1;
+      text-align: right;
+    }
+
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: bold;
+    }
+
+    header nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .back-button {
+      background-color: #6c757d;
+    }
+
+    .back-button:hover {
+      background-color: #565e64;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.jpg" alt="Sajjad Tools Logo">
+    <nav>
+      <a href="#tool">Tool</a>
+     
+    </nav>
+  </header>
+
+  <div class="container" id="tool">
+    <button class="back-button" onclick="goBack()">Back</button>
+    <h2>Welcome to Sajjad Tools - Gmail Dot Maker</h2>
+    <form id="gmail-form">
+      <label for="email">Enter Gmail Username (without @gmail.com):</label>
+      <input type="text" id="email" placeholder="example">
+      <button type="button" onclick="generateGmailDots()">Generate</button>
+    </form>
+    <div class="output" id="output"></div>
+    <div class="actions">
+      <button id="copy-button" onclick="copyToClipboard()" disabled>Copy to Clipboard</button>
+      <button id="download-button" onclick="downloadResults()" disabled>Download Results</button>
+      <span class="total" id="total-count"></span>
+    </div>
+  </div>
+
+  <script>
+    // Back button functionality
+    function goBack() {
+      window.history.back();
+    }
+
+    // Generate Gmail dot combinations
+    function generateGmailDots() {
+      const email = document.getElementById('email').value.trim();
+      const output = document.getElementById('output');
+      const totalCount = document.getElementById('total-count');
+      const copyButton = document.getElementById('copy-button');
+      const downloadButton = document.getElementById('download-button');
+
+      // Input validation
+      if (!email) {
+        output.textContent = 'Please enter a Gmail username.';
+        totalCount.textContent = '';
+        copyButton.disabled = true;
+        downloadButton.disabled = true;
+        return;
+      }
+
+      if (/[^a-zA-Z0-9]/.test(email)) {
+        output.textContent = 'Invalid Gmail username. Only alphanumeric characters are allowed.';
+        totalCount.textContent = '';
+        copyButton.disabled = true;
+        downloadButton.disabled = true;
+        return;
+      }
+
+      // Generate combinations
+      const combinations = getDotCombinations(email);
+      output.textContent = combinations.map(c => `${c}@gmail.com`).join('\n');
+      totalCount.textContent = `Total Combinations: ${combinations.length}`;
+      copyButton.disabled = false;
+      downloadButton.disabled = false;
+    }
+
+    // Recursive function to generate all dot combinations
+    function getDotCombinations(email) {
+      const results = [];
+      const parts = email.split('');
+
+      const addDots = (current, index) => {
+        if (index === parts.length) {
+          results.push(current.join(''));
+          return;
+        }
+
+        // Without dot
+        current.push(parts[index]);
+        addDots(current, index + 1);
+        current.pop();
+
+        // With dot
+        if (index !== parts.length - 1) {
+          current.push(parts[index], '.');
+          addDots(current, index + 1);
+          current.pop();
+          current.pop();
+        }
+      };
+
+      addDots([], 0);
+      return results;
+    }
+
+    // Copy output to clipboard
+    function copyToClipboard() {
+      const output = document.getElementById('output');
+      const textToCopy = output.textContent;
+
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          alert('Email combinations copied to clipboard!');
+        }).catch(err => {
+          alert('Failed to copy text. Please try again.');
+        });
+      }
+    }
+
+    // Download results as a text file
+    function downloadResults() {
+      const output = document.getElementById('output').textContent;
+
+      if (!output) return;
+
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'gmail_combinations.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
